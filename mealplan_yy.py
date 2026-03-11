@@ -22,7 +22,7 @@ def to_float(value):
         return None
 
 
-# Extract dietary tag codes from a CSV row ( V=1 -> "V").
+# get dietary tag codes from a CSV row
 def row_tags(row):
     return [t for t in TAG_COLS if row.get(t, "").strip() == "1"]
 
@@ -38,62 +38,18 @@ def read_csv_rows(csv_path):
         return list(csv.DictReader(f))
 
 
-# Pick newest date and checks food candidates to build meal.
-def choose_best_date(rows, required_tags, disallow_repeats):
-    dates = sorted({r.get("date", "") for r in rows if r.get("date")}, reverse=True)
-    if not dates:
-        raise SystemExit("CSV is missing 'date' values")
-
-    def complete_macros(r):
-        return all(to_float(r.get(c)) is not None for c in ("calories", "total_fat_g", "total_carbs_g", "protein_g"))
-
-    def key(r):
-        return (
-            r.get("date", ""),
-            r.get("restaurant_name", ""),
-            r.get("period_name", ""),
-            r.get("menu_section", ""),
-            r.get("item_name", ""),
-        )
-
-    for d in dates:
-        pools = {m: 0 for m in MEALS}
-        seen = set()
-        for r in rows:
-            if r.get("date") != d or not complete_macros(r):
-                continue
-            tags = row_tags(r)
-            if not includes_all_tags(tags, required_tags):
-                continue
-            k = key(r)
-            if disallow_repeats and k in seen:
-                continue
-            seen.add(k)
-            period = (r.get("period_name") or "").strip()
-            if period in EVERYDAY:
-                for m in MEALS:
-                    pools[m] += 1
-            elif period in pools:
-                pools[period] += 1
-        if all(pools[m] >= 3 for m in MEALS) and (not disallow_repeats or len(seen) >= 9):
-            return d
-
-    return dates[0]
-
-
-# Build FoodItem objects and keep the original row data.
+# Build FoodItem objects and keep the original row data (NO date filtering).
 def load_records(csv_path, date, required_tags, disallow_repeats):
     rows = read_csv_rows(csv_path)
     if not rows:
         raise SystemExit("CSV has no rows")
 
-    date_used = date or choose_best_date(rows, required_tags, disallow_repeats)
-
     records = []
     for r in rows:
-        if r.get("date") != date_used:
-            continue
         tags = row_tags(r)
+        if not includes_all_tags(tags, required_tags):
+            continue
+
         item = FoodItem(
             (r.get("item_name") or "").strip(),
             (r.get("restaurant_name") or "").strip(),
@@ -106,9 +62,9 @@ def load_records(csv_path, date, required_tags, disallow_repeats):
         records.append((item, {**r, "tags": tags}))
 
     if not records:
-        raise SystemExit(f"No rows found for date={date_used!r}")
+        raise SystemExit("No rows found after filtering by tags")
 
-    return records, date_used
+    return records, "ALL"
 
 
 # Split records into meal pools using period_name (breakfast, lunch dinner, and every Day items go into all meals).
@@ -128,6 +84,8 @@ def make_meal_pools(records):
 def sum_macros(recs):
     cal = fat = carbs = prot = 0.0
     for item, _ in recs:
+        if item.calories is None or item.fat is None or item.carbs is None or item.protein is None:
+            continue
         cal += float(item.calories)
         fat += float(item.fat)
         carbs += float(item.carbs)
@@ -160,9 +118,7 @@ def find_best_plan(pools, target, required_tags, trials, seed, meal_split, calor
     for meal in MEALS:
         filtered[meal] = [rec for rec in pools[meal] if complete(rec[0]) and includes_all_tags(rec[0].diet_restrictions, required_tags)]
         if len(filtered[meal]) < 3:
-            raise SystemExit(
-                f"Not enough candidates for {meal}. Need 3, found {len(filtered[meal])}. "
-            )
+            raise SystemExit(f"Not enough candidates for {meal}. Need 3, found {len(filtered[meal])}.")
 
     s = sum(meal_split)
     b, l, d = (meal_split[0] / s, meal_split[1] / s, meal_split[2] / s)
@@ -175,7 +131,6 @@ def find_best_plan(pools, target, required_tags, trials, seed, meal_split, calor
     def rec_key(rec):
         meta = rec[1]
         return (
-            meta.get("date", ""),
             meta.get("restaurant_name", ""),
             meta.get("period_name", ""),
             meta.get("menu_section", ""),
@@ -212,6 +167,7 @@ def find_best_plan(pools, target, required_tags, trials, seed, meal_split, calor
 
         if total_err < best_err:
             best_err, best_plan = total_err, plan
+
     if best_plan is None:
         raise SystemExit("Could not find a valid plan.")
 
@@ -227,7 +183,7 @@ def print_plan(plan, target, date_used, required_tags):
     totals = sum_macros(day)
 
     print("\n Daily Meal Plan ")
-    print("Date:", date_used)
+    print("Menu:", "All rows (no date filter)")
     print("Required tags (must include):", required_tags if required_tags else "None")
     print("\nTarget:\n ", fmt(target))
     print("Actual:\n ", fmt(totals))
@@ -244,9 +200,8 @@ def print_plan(plan, target, date_used, required_tags):
 
 # Parse inputs user macro information into one object to use.
 def parse_args():
-    ap = argparse.ArgumentParser(description="Generate a 3-meal (3 items each) macro-matching plan from menu_dataset.csv")
+    ap = argparse.ArgumentParser(description="Generate a 3-meal (3 items each) macro-matching plan from menu_dataset.csv (no date filter)")
     ap.add_argument("--csv", default="menu_dataset.csv")
-    ap.add_argument("--date", default=None)
 
     ap.add_argument("--calories", type=float, required=True)
     ap.add_argument("--fat", type=float, required=True)
@@ -273,7 +228,7 @@ def main():
 
     records, date_used = load_records(
         args.csv,
-        args.date,
+        None,
         args.require_tag,
         disallow_repeats=not args.allow_repeats,
     )

@@ -1,0 +1,47 @@
+import build_menu_data
+
+reduced_data = [
+    build_menu_data.FoodItem("Waffle Potato Fries","Chick-fil-A",520,27,62,6,[]),
+    build_menu_data.FoodItem("Chicken Egg Roll","Panda Express",200,10,20,6,[]),
+    build_menu_data.FoodItem("Stir Fry Vegetables","Noodles",80,1.5,15,3,["VG","V"]),
+    build_menu_data.FoodItem("Green Beans","Noodles",60,3,5,2,["VG","V","AG"]),
+    build_menu_data.FoodItem("Toasted Farro","Hearth",130,0,26,5,["VG","V"]),
+    build_menu_data.FoodItem("Beef and Pork Meatballs","Hearth",680,50,20,36,[]),
+    build_menu_data.FoodItem("Beyond Burger","Brunch",560,29,52,27,["VG","V"]),
+    build_menu_data.FoodItem("Grilled Chicken Sandwich","Chick-fil-A",390,12,44,28,[]),
+    build_menu_data.FoodItem("Spicy Deluxe Sandwich","Chick-fil-A",550,25,56,30,[]),
+    build_menu_data.FoodItem("Fruit Cup","Chick-fil-A",70,0,17,1,["VG","V","AG"]),
+    build_menu_data.FoodItem("Side Salad","Chick-fil-A",160,9,12,6,["VG"]),
+    build_menu_data.FoodItem("Chicken Nuggets (8 ct)","Chick-fil-A",250,13,8,27,[]),
+
+    build_menu_data.FoodItem("Orange Chicken","Panda Express",490,23,51,25,[]),
+    build_menu_data.FoodItem("Broccoli Beef","Panda Express",150,7,13,9,[]),
+    build_menu_data.FoodItem("String Bean Chicken Breast","Panda Express",190,9,13,14,[]),
+    build_menu_data.FoodItem("Chow Mein","Panda Express",510,22,80,13,["VG"]),
+    build_menu_data.FoodItem("Fried Rice","Panda Express",520,16,85,11,[]),
+    build_menu_data.FoodItem("White Steamed Rice","Panda Express",380,0,86,7,["VG","V","AG"]),
+    build_menu_data.FoodItem("Super Greens","Panda Express",90,3,10,6,["VG","V","AG"]),
+    build_menu_data.FoodItem("Veggie Spring Rolls (2)","Panda Express",190,8,27,4,["VG","V"]),
+
+    build_menu_data.FoodItem("Teriyaki Chicken Bowl","Noodles",610,18,78,32,[]),
+    build_menu_data.FoodItem("Pesto Cavatappi (Regular)","Noodles",640,30,79,20,["VG"]),
+    build_menu_data.FoodItem("Pad Thai (Regular)","Noodles",760,22,112,22,[]),
+    build_menu_data.FoodItem("Japanese Pan Noodles (Regular)","Noodles",540,18,78,18,["VG"]),
+    build_menu_data.FoodItem("Zucchini Pesto with Grilled Chicken","Noodles",410,14,43,34,[]),
+    build_menu_data.FoodItem("Marinara Pasta (Regular)","Noodles",520,8,96,18,["VG","V"]),
+    build_menu_data.FoodItem("Caesar Side Salad","Noodles",180,14,10,6,["VG"]),
+
+    build_menu_data.FoodItem("Grilled Salmon","Hearth",420,22,8,45,[]),
+    build_menu_data.FoodItem("Roasted Chicken Thigh","Hearth",360,20,3,40,[]),
+    build_menu_data.FoodItem("Brown Rice Pilaf","Hearth",220,4,44,5,["VG","V","AG"]),
+    build_menu_data.FoodItem("Garlic Roasted Potatoes","Hearth",260,9,42,5,["VG","V"]),
+    build_menu_data.FoodItem("Seasonal Mixed Vegetables","Hearth",110,3,18,4,["VG","V","AG"]),
+    build_menu_data.FoodItem("Turkey Chili","Hearth",330,10,32,28,[]),
+
+    build_menu_data.FoodItem("Scrambled Eggs","Brunch",200,15,2,13,["VG"]),
+    build_menu_data.FoodItem("Turkey Sausage Links","Brunch",180,13,1,14,[]),
+    build_menu_data.FoodItem("Pancakes (3)","Brunch",520,12,92,10,["VG"]),
+    build_menu_data.FoodItem("Oatmeal","Brunch",190,4,33,6,["VG","V","AG"]),
+    build_menu_data.FoodItem("Avocado Toast","Brunch",420,18,52,10,["VG","V"]),
+    build_menu_data.FoodItem("Greek Yogurt Parfait","Brunch",310,6,46,18,["VG"]),
+]
