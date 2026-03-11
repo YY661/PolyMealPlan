@@ -66,7 +66,7 @@ def main():
         seed=None,
         meal_split=(0.30, 0.35, 0.35),
         calorie_tolerance=150.0,
-        allow_repeats=True,
+        allow_repeats=False,
     )
 
     planner.print_plan(plan, target, "TEST", tags)

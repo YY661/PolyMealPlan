@@ -1,4 +1,3 @@
-import argparse
 import csv
 import random
 
@@ -38,7 +37,7 @@ def read_csv_rows(csv_path):
         return list(csv.DictReader(f))
 
 
-# Build FoodItem objects and keep the original row data (NO date filtering).
+# Build FoodItem objects and keep the original row data
 def load_records(csv_path, date, required_tags, disallow_repeats):
     rows = read_csv_rows(csv_path)
     if not rows:
@@ -198,56 +197,6 @@ def print_plan(plan, target, date_used, required_tags):
                 print(f"  {k}: {meta[k]}")
 
 
-# Parse inputs user macro information into one object to use.
-def parse_args():
-    ap = argparse.ArgumentParser(description="Generate a 3-meal (3 items each) macro-matching plan from menu_dataset.csv (no date filter)")
-    ap.add_argument("--csv", default="menu_dataset.csv")
-
-    ap.add_argument("--calories", type=float, required=True)
-    ap.add_argument("--fat", type=float, required=True)
-    ap.add_argument("--carbs", type=float, required=True)
-    ap.add_argument("--protein", type=float, required=True)
-
-    ap.add_argument("--require-tag", action="append", default=[], help="Repeatable: VG, V, AG, HALAL")
-    ap.add_argument("--trials", type=int, default=60000)
-    ap.add_argument("--seed", type=int, default=None)
-    ap.add_argument("--meal-split", type=float, nargs=3, default=(0.30, 0.35, 0.35), metavar=("B", "L", "D"))
-    ap.add_argument("--calorie-tolerance", type=float, default=150.0)
-    ap.add_argument("--allow-repeats", action="store_true")
-
-    return ap.parse_args()
-
-
-# Run the full program: load data, build pools, search, and print the plan.
-def main():
-    args = parse_args()
-
-    for t in args.require_tag:
-        if t not in TAG_COLS:
-            raise SystemExit(f"Unknown tag {t!r}. Expected one of: {', '.join(TAG_COLS)}")
-
-    records, date_used = load_records(
-        args.csv,
-        None,
-        args.require_tag,
-        disallow_repeats=not args.allow_repeats,
-    )
-
-    pools = make_meal_pools(records)
-    target = (args.calories, args.fat, args.carbs, args.protein)
-
-    plan = find_best_plan(
-        pools,
-        target,
-        args.require_tag,
-        trials=args.trials,
-        seed=args.seed,
-        meal_split=tuple(args.meal_split),
-        calorie_tolerance=args.calorie_tolerance,
-        allow_repeats=args.allow_repeats,
-    )
-
-    print_plan(plan, target, date_used, args.require_tag)
 
 
 if __name__ == "__main__":
